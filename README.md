@@ -73,6 +73,8 @@ Date: Mon, 20 May 2013 06: 46: 45 GMT
 
 ### Available Endpoints
 *All requests are json*
+
+
 | Endpoint                                      | Description                                          |
 | :-------------------------------------------: | :--------------------------------------------------: |
 | [POST /auth/login](#)                         | Logs a user in                                       |
