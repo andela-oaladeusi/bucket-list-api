@@ -1,4 +1,4 @@
-#Bucket-List-API
+#Bucket-List-API  [![Coverage Status](https://coveralls.io/repos/andela-ooshodi/bucket-list-api/badge.svg?branch=master&service=github)](https://coveralls.io/github/andela-ooshodi/bucket-list-api?branch=master)
 
 ### Challenge
 Design a bucketlist API with flask 
