@@ -38,12 +38,14 @@ def login():
     password = request.json.get('password')
 
     if verify_password(username, password):
-        session['logged_in'] = True
-        status = "Logged in successfully"
+        token = get_auth_token()
+        status = "token generated successfully"
     else:
         status = "Invalid username or password"
+        token = None
 
-    return jsonify({'status': status})
+    return jsonify({'status': status,
+                    'token': token})
 
 
 # logout endpoint
@@ -51,7 +53,7 @@ def login():
 @auth.login_required
 def logout():
     '''loguts a user'''
-    session.pop('logged_in', None)
+    session.pop()
     return jsonify({'status': 'Logged Out'})
 
 
@@ -76,4 +78,4 @@ def verify_password(username_or_token, password):
 def get_auth_token():
     '''End point for users to request for token'''
     token = g.user.generate_auth_token()
-    return jsonify({'token': token.decode('ascii')})
+    return token

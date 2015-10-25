@@ -41,12 +41,14 @@ def get_bucketlists():
     if limit:
         limit = int(limit)
         if limit > 0 or limit <= 100:
-            bucketlists = BucketList.query.limit(limit).all()
+            bucketlists = BucketList.query.filter_by(
+                created_by=g.user.username).limit(limit).all()
     elif q:
         bucketlists = BucketList.query.filter(
             BucketList.name.contains(q)).all()
     else:
-        bucketlists = BucketList.query.limit(20).all()
+        bucketlists = BucketList.query.filter_by(
+            created_by=g.user.username).limit(20).all()
 
     return jsonify({
         'bucketlists': [bucketlist.to_json() for bucketlist in bucketlists]
@@ -72,6 +74,8 @@ def add_bucketlist():
 def get_bucketlist(bucketlist_id):
     '''Returns a single bucketlist'''
     bucketlist = BucketList.query.get_or_404(bucketlist_id)
+    if bucketlist.created_by != g.user.username:
+        abort(401)
     return jsonify({'bucketlist': bucketlist.to_json()})
 
 
