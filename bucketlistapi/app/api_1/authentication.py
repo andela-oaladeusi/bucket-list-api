@@ -53,7 +53,7 @@ def login():
 @auth.login_required
 def logout():
     '''loguts a user'''
-    session.pop()
+    session.clear()
     return jsonify({'status': 'Logged Out'})
 
 
