@@ -58,6 +58,7 @@ def logout():
 # verify users
 @auth.verify_password
 def verify_password(username_or_token, password):
+    '''verifies user based on login credentials or generated token'''
     # first try to authenticate by token
     user = User.verify_auth_token(username_or_token)
     if not user:

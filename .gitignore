@@ -63,3 +63,6 @@ psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe
 *.sqlite
 bucket-list-api/bucketlistdb-test.sqlite
 bucket-list-api/bucketlistdb-dev.sqlite
+
+# config file 
+config.py

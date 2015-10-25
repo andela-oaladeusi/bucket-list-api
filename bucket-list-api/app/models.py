@@ -11,19 +11,17 @@ from flask import url_for, current_app, g
 from . import db
 
 from datetime import datetime
-import json
 
 
 class User(db.Model):
+
+    '''User Table'''
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     bucketlists = db.relationship('BucketList', backref=db.backref(
         'bucketlist', lazy='joined'), lazy='dynamic', uselist=True)
-
-    def __repr__(self):
-        return '<User: {0}>'.format(self.name)
 
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
@@ -58,10 +56,6 @@ class User(db.Model):
         }
         return json_user
 
-    @staticmethod
-    def from_json(json_user):
-        User(json.loads(json_user)).save()
-
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -72,6 +66,8 @@ class User(db.Model):
 
 
 class BucketList(db.Model):
+
+    '''BucketList Table'''
     __tablename__ = 'bucketlist'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
@@ -81,9 +77,6 @@ class BucketList(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     bucketitem = db.relationship('BucketItems', backref=db.backref(
         'bucketitems', lazy='joined'), lazy='dynamic', uselist=True)
-
-    def __repr__(self):
-        return '<Bucket List: {0}>'.format(self.name)
 
     def creation(self):
         self.created_by = g.user.username
@@ -114,10 +107,6 @@ class BucketList(db.Model):
         }
         return json_bucketlist
 
-    @staticmethod
-    def from_json(json_bucketlist):
-        BucketList(json.loads(json_bucketlist)).save()
-
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -128,6 +117,8 @@ class BucketList(db.Model):
 
 
 class BucketItems(db.Model):
+
+    '''BucketItem Table'''
     __tablename__ = 'bucketitems'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128))
@@ -135,9 +126,6 @@ class BucketItems(db.Model):
     date_modified = db.Column(db.DateTime)
     done = db.Column(db.Boolean)
     bucketlist_id = db.Column(db.Integer, db.ForeignKey('bucketlist.id'))
-
-    def __repr__(self):
-        return '<Bucket Item: {0}>'.format(self.name)
 
     def creation(self):
         self.date_created = datetime.utcnow()
@@ -153,10 +141,6 @@ class BucketItems(db.Model):
             'done': self.done
         }
         return json_items
-
-    @staticmethod
-    def from_json(json_items):
-        BucketItems(json.loads(json_items)).save()
 
     def save(self):
         db.session.add(self)
