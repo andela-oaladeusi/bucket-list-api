@@ -40,7 +40,7 @@ The project is structured using flask blueprint
 9. Additionally you can run `python manage.py -h` to get more available options
 
 
-###EXAMPLE Requests
+###Example Requests
 ```
 $ curl -u lade: password -i http: //localhost:5000/api/v1/bucketlists/
 HTTP/1. 0 200 OK
@@ -73,18 +73,18 @@ Date: Mon, 20 May 2013 06: 46: 45 GMT
 
 ### Available Endpoints
 *All requests are json*
-| Endpoint | Description |
-| ---- | --------------- |
-| [POST /auth/login](#) | Logs a user in |
-| [POST /auth/logout](#) | Logs a user out |
-| [POST /auth/register](#) |  Registers a user |
-| [POST /bucketlists/](#) | Create a new bucket list |
-| [GET /bucketlists/](#) | List all the created bucket lists |
-| [GET /bucketlists/<id>](#) | Get single bucket list |
-| [PUT /bucketlists/<id>](#) | Update single bucket list |
-| [DELETE /bucketlists/<id>](#) | Delete single bucket list |
-| [POST /bucketlists/<id>/items](#) | Create a new item in bucket list|
-| [PUT /bucketlists/<id>/items/<item_id>](#) | Update a bucket list item |
-| [DELETE /bucketlists/<id>/items/<item_id>](#) | Delete an item in a bucket list |
-| [GET /bucketlists?limit=20](#) | Returns 20 available bucketlists |
-| [GET /bucketlists?q=bucket1](#) | Search for a bucket lists with bucket1 in their name |
+| Endpoint                                      | Description                                          |
+| :-------------------------------------------: | :--------------------------------------------------: |
+| [POST /auth/login](#)                         | Logs a user in                                       |
+| [POST /auth/logout](#)                        | Logs a user out                                      |
+| [POST /auth/register](#)                      |  Registers a user                                    |
+| [POST /bucketlists/](#)                       | Create a new bucket list                             |
+| [GET /bucketlists/](#)                        | List all the created bucket lists                    |
+| [GET /bucketlists/<id>](#)                    | Get single bucket list                               |
+| [PUT /bucketlists/<id>](#)                    | Update single bucket list                            |
+| [DELETE /bucketlists/<id>](#)                 | Delete single bucket list                            |
+| [POST /bucketlists/<id>/items](#)             | Create a new item in bucket list                     |
+| [PUT /bucketlists/<id>/items/<item_id>](#)    | Update a bucket list item                            |
+| [DELETE /bucketlists/<id>/items/<item_id>](#) | Delete an item in a bucket list                      |
+| [GET /bucketlists?limit=20](#)                | Returns 20 available bucketlists                     |
+| [GET /bucketlists?q=bucket1](#)               | Search for a bucket lists with bucket1 in their name |
