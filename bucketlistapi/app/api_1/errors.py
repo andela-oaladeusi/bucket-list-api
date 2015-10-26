@@ -16,11 +16,6 @@ def unauthorized(error):
     return make_response(jsonify({'error': 'Unauthorized'}), 401)
 
 
-@api_1.errorhandler(403)
-def forbidden(error):
-    return make_response(jsonify({'error': 'Forbidden'}), 403)
-
-
 @api_1.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)

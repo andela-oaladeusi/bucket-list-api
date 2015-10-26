@@ -2,8 +2,9 @@
 Handles all authentication for API
 '''
 from . import api_1
+from . import errors
 from ..models import User
-from flask import request, url_for, g, abort, jsonify, session
+from flask import request, url_for, g, jsonify, session
 
 from flask.ext.httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
@@ -17,9 +18,9 @@ def new_user():
     password = request.json.get('password')
 
     if username is None or password is None:
-        abort(400)  # missing arguments
+        return errors.bad_request(400)  # missing arguments
     if User.query.filter_by(username=username).first() is not None:
-        abort(400)  # existing user
+        return errors.bad_request(400)  # existing user
     user = User(username=username)
     user.hash_password(password)
     user.save()

@@ -194,3 +194,62 @@ class TestAPI(unittest.TestCase):
             url_for('api_1.new_user'),
             headers=self.get_api_headers('lade', 'password'))
         self.assertTrue(response.status_code == 400)
+
+    def test_get_user_error(self):
+        response = self.client.get(
+            url_for('api_1.get_user', username='timothy'),
+            headers=self.get_api_headers('lade', 'password'))
+        self.assertTrue(response.status_code == 400)
+
+    def test_add_bucketlist_error(self):
+        response = self.client.post(
+            url_for('api_1.add_bucketlist'),
+            headers=self.get_api_headers('lade', 'password'))
+        self.assertTrue(response.status_code == 400)
+
+    def test_get_bucketlist_error(self):
+        response = self.client.get(
+            url_for('api_1.get_bucketlist', bucketlist_id=1),
+            headers=self.get_api_headers('dave', 'password'))
+        self.assertTrue(response.status_code == 401)
+
+    def test_update_bucketlist_error(self):
+        response = self.client.put(
+            url_for('api_1.change_bucketlist_name', bucketlist_id=1),
+            headers=self.get_api_headers('dave', 'password'),
+            data=json.dumps({
+                'name': 'I should not have access to this bucketlist'
+            }))
+        self.assertTrue(response.status_code == 401)
+
+    def test_delete_bucketlist_error(self):
+        response = self.client.delete(
+            url_for('api_1.delete_bucketlist', bucketlist_id=1),
+            headers=self.get_api_headers('dave', 'password'))
+        self.assertTrue(response.status_code == 401)
+
+    def test_create_bucketitem_error(self):
+        response = self.client.post(
+            url_for('api_1.add_bucketlist_item', bucketlist_id=1),
+            headers=self.get_api_headers('dave', 'password'),
+            data=json.dumps({
+                'name': 'I should not create an bucketitem in this bucketlist'
+            }))
+        self.assertTrue(response.status_code == 401)
+
+    def test_update_bucketitem_error(self):
+        # test update a bucketitem status
+        response = self.client.put(
+            url_for('api_1.update_bucketitem_status',
+                    bucketlist_id=1, bucketitem_id=1),
+            headers=self.get_api_headers('dave', 'password'),
+            data=json.dumps({'done': True}))
+        self.assertTrue(response.status_code == 401)
+
+    def test_delete_bucketitem_error(self):
+        # test delete a bucketitem
+        response = self.client.delete(
+            url_for('api_1.delete_item',
+                    bucketlist_id=1, bucketitem_id=1),
+            headers=self.get_api_headers('dave', 'password'))
+        self.assertTrue(response.status_code == 401)

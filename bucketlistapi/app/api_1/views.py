@@ -1,10 +1,11 @@
 '''
 Views for the API
 '''
-from flask import jsonify, request, abort, g
+from flask import jsonify, request, g
 
 
 from . import api_1
+from . import errors
 from .authentication import auth
 from ..models import User, BucketList, BucketItems
 from datetime import datetime
@@ -27,7 +28,7 @@ def get_user(username):
     '''Return a user'''
     user = User.query.filter_by(username=username).first()
     if not user:
-        abort(400)
+        return errors.bad_request(400)
     return jsonify({'user': user.to_json()})
 
 
@@ -61,7 +62,7 @@ def add_bucketlist():
     '''Creates a new bucketlist'''
     name = request.json.get('name')
     if not name:
-        abort(400)
+        return errors.bad_request(400)
     bucketlist = BucketList(name=name)
     bucketlist.creation()
     bucketlist.save()
@@ -75,7 +76,7 @@ def get_bucketlist(bucketlist_id):
     '''Returns a single bucketlist'''
     bucketlist = BucketList.query.get_or_404(bucketlist_id)
     if bucketlist.created_by != g.user.username:
-        abort(401)
+        return errors.unauthorized(401)
     return jsonify({'bucketlist': bucketlist.to_json()})
 
 
@@ -88,7 +89,7 @@ def change_bucketlist_name(bucketlist_id):
         name = request.json.get('name')
         bucketlist.rename(name)
     else:
-        abort(401)
+        return errors.unauthorized(401)
 
     return jsonify({'bucketlist': bucketlist.to_json()})
 
@@ -102,7 +103,7 @@ def delete_bucketlist(bucketlist_id):
         bucketlist.delete()
         return jsonify({"status": "successfully deleted"})
     else:
-        abort(401)
+        return errors.unauthorized(401)
 
 
 @api_1.route('/bucketlists/<int:bucketlist_id>/items/', methods=['POST'])
@@ -118,7 +119,7 @@ def add_bucketlist_item(bucketlist_id):
         bucketitems.creation()
         bucketitems.save()
     else:
-        abort(401)
+        return errors.unauthorized(401)
 
     return jsonify({'item': bucketitems.to_json()})
 
@@ -129,7 +130,7 @@ def update_bucketitem_status(bucketlist_id, bucketitem_id):
     '''Update a bucketlist item status'''
     bucketlist = BucketList.query.get(bucketlist_id)
     if bucketlist.created_by != g.user.username:
-        abort(403)
+        return errors.unauthorized(401)
     items = BucketItems.query.filter_by(bucketlist_id=bucketlist_id).all()
     for bucketitem in items:
         if bucketitem.id == bucketitem_id:
@@ -147,7 +148,7 @@ def delete_item(bucketlist_id, bucketitem_id):
     '''Delete a bucketlist item'''
     bucketlist = BucketList.query.get(bucketlist_id)
     if bucketlist.created_by != g.user.username:
-        abort(401)
+        return errors.unauthorized(401)
     items = BucketItems.query.filter_by(bucketlist_id=bucketlist_id).all()
     for bucketitem in items:
         if bucketitem.id == bucketitem_id:
