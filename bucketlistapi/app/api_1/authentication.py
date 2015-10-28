@@ -47,7 +47,9 @@ def login():
         token = None
 
     return jsonify({'status': status,
-                    'token': token})
+                    'token': token,
+                    'renewal':'please  login again to renew token'
+                    })
 
 
 # logout endpoint
@@ -75,7 +77,7 @@ def verify_password(username_or_token, password):
 
 
 # request for token
-@api_1.route('/token/')
+# to renew token, the user has to log in again
 @auth.login_required
 def get_auth_token():
     '''Generates a token'''

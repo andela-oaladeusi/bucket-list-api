@@ -70,13 +70,6 @@ class TestAPI(unittest.TestCase):
             data=json.dumps({'username': 'lade', 'password': 'password'}))
         self.assertTrue(response.status_code == 200)
 
-    def test_generate_a_token(self):
-        # generate a token
-        response = self.client.get(
-            url_for('api_1.get_auth_token'),
-            headers=self.get_api_headers('lade', 'password'))
-        self.assertTrue(response.status_code == 200)
-
     def test_auth_logout(self):
         # logout a user
         response = self.client.post(
@@ -160,16 +153,25 @@ class TestAPI(unittest.TestCase):
     def test_update_bucketitem(self):
         # test update a bucketitem status
         response = self.client.put(
-            url_for('api_1.update_bucketitem_status',
+            url_for('api_1.update_bucketitem',
                     bucketlist_id=1, bucketitem_id=1),
             headers=self.get_api_headers('lade', 'password'),
             data=json.dumps({'done': True}))
         self.assertTrue(response.status_code == 200)
 
+    def test_update_bucketitem_name(self):
+        # test update a bucketitem name
+        response = self.client.put(
+            url_for('api_1.update_bucketitem',
+                    bucketlist_id=1, bucketitem_id=1),
+            headers=self.get_api_headers('lade', 'password'),
+            data=json.dumps({'name': 'I just changed this bucketlist'}))
+        self.assertTrue(response.status_code == 200)
+
     def test_delete_bucketitem(self):
         # test delete a bucketitem
         response = self.client.delete(
-            url_for('api_1.delete_item',
+            url_for('api_1.delete_bucketitem',
                     bucketlist_id=1, bucketitem_id=1),
             headers=self.get_api_headers('lade', 'password'))
         self.assertTrue(response.status_code == 200)
@@ -239,7 +241,7 @@ class TestAPI(unittest.TestCase):
 
     def test_update_bucketitem_error(self):
         response = self.client.put(
-            url_for('api_1.update_bucketitem_status',
+            url_for('api_1.update_bucketitem',
                     bucketlist_id=1, bucketitem_id=1),
             headers=self.get_api_headers('dave', 'password'),
             data=json.dumps({'done': True}))
@@ -247,7 +249,7 @@ class TestAPI(unittest.TestCase):
 
     def test_delete_bucketitem_error(self):
         response = self.client.delete(
-            url_for('api_1.delete_item',
+            url_for('api_1.delete_bucketitem',
                     bucketlist_id=1, bucketitem_id=1),
             headers=self.get_api_headers('dave', 'password'))
         self.assertTrue(response.status_code == 401)

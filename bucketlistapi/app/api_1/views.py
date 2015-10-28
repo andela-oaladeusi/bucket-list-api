@@ -159,8 +159,8 @@ def add_bucketlist_item(bucketlist_id):
 
 @api_1.route('/bucketlists/<int:bucketlist_id>/items/<int:bucketitem_id>/', methods=['PUT'])
 @auth.login_required
-def update_bucketitem_status(bucketlist_id, bucketitem_id):
-    '''Update a bucketlist item status'''
+def update_bucketitem(bucketlist_id, bucketitem_id):
+    '''Update a bucketlist item status and/or name'''
     bucketlist = BucketList.query.get(bucketlist_id)
 
     # Allows authenticated users update only their bucketitem
@@ -170,6 +170,9 @@ def update_bucketitem_status(bucketlist_id, bucketitem_id):
     for bucketitem in items:
         if bucketitem.id == bucketitem_id:
             bucketitem.done = request.json.get('done')
+            new_name = request.json.get('name')
+            if new_name is not None:
+                bucketitem.name = new_name
             bucketitem.date_modified = datetime.utcnow()
             break
     bucketitem = BucketItems.query.get(bucketitem_id)
@@ -179,7 +182,7 @@ def update_bucketitem_status(bucketlist_id, bucketitem_id):
 
 @api_1.route('/bucketlists/<int:bucketlist_id>/items/<int:bucketitem_id>/', methods=['DELETE'])
 @auth.login_required
-def delete_item(bucketlist_id, bucketitem_id):
+def delete_bucketitem(bucketlist_id, bucketitem_id):
     '''Delete a bucketlist item'''
     bucketlist = BucketList.query.get(bucketlist_id)
 
