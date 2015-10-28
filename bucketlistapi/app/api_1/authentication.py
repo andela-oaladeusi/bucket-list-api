@@ -82,4 +82,4 @@ def verify_password(username_or_token, password):
 def get_auth_token():
     '''Generates a token'''
     token = g.user.generate_auth_token()
-    return token
+    return token.decode('ascii')
