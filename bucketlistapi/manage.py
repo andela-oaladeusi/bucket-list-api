@@ -1,5 +1,5 @@
 '''
-Launch Script
+Commandline scripting settings
 '''
 from app import create_app, db
 from app.models import User, BucketList, BucketItems
@@ -12,6 +12,8 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 
 
+#  function registers the application and database instances
+# and the models so that they are automatically imported into the shell
 def make_shell_context():
     return dict(
         app=app, db=db, User=User,

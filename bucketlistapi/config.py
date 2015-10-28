@@ -9,6 +9,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = 'my secret key'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+    DEFAULT_PER_PAGE = 20
+    MAX_PER_PAGE = 100
 
     @staticmethod
     def init_app(app):

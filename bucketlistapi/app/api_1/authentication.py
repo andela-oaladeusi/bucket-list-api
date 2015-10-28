@@ -38,6 +38,7 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password')
 
+    # verifies and returns a token for the user
     if verify_password(username, password):
         token = get_auth_token()
         status = "token generated successfully"
@@ -77,6 +78,6 @@ def verify_password(username_or_token, password):
 @api_1.route('/token/')
 @auth.login_required
 def get_auth_token():
-    '''End point for users to request for token'''
+    '''Generates a token'''
     token = g.user.generate_auth_token()
     return token

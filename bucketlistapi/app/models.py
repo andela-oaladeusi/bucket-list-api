@@ -23,16 +23,20 @@ class User(db.Model):
     bucketlists = db.relationship('BucketList', backref=db.backref(
         'bucketlist', lazy='joined'), lazy='dynamic', uselist=True)
 
+    # perform hashing on password
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
 
+    # verify hashed password
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)
 
+    # generate timed authentication token
     def generate_auth_token(self, expiration=600):
         s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps({'id': self.id})
 
+    # verify authentication token
     @staticmethod
     def verify_auth_token(token):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -45,6 +49,7 @@ class User(db.Model):
         user = User.query.get(data['id'])
         return user
 
+    # json format
     def to_json(self):
         bucketlists = [item.to_json() for item in self.bucketlists]
         json_user = {
@@ -56,10 +61,12 @@ class User(db.Model):
         }
         return json_user
 
+    # save user to db
     def save(self):
         db.session.add(self)
         db.session.commit()
 
+    # dekete user form db
     def delete(self):
         db.session.delete(self)
         db.session.commit()
@@ -78,17 +85,20 @@ class BucketList(db.Model):
     bucketitem = db.relationship('BucketItems', backref=db.backref(
         'bucketitems', lazy='joined'), lazy='dynamic', uselist=True)
 
+    # intantiate bucketlist fields at creation
     def creation(self):
         self.created_by = g.user.username
         self.creator_id = g.user.id
         self.date_created = datetime.utcnow()
         self.date_modified = datetime.utcnow()
 
+    # rename bucketlist
     def rename(self, new_name):
         self.name = new_name
         self.date_modified = datetime.utcnow()
         self.save()
 
+    # json format
     def to_json(self):
         items = [item.to_json() for item in self.bucketitem]
 
@@ -107,10 +117,12 @@ class BucketList(db.Model):
         }
         return json_bucketlist
 
+    # save bucketlist to db
     def save(self):
         db.session.add(self)
         db.session.commit()
 
+    # delete bucketlist from db
     def delete(self):
         db.session.delete(self)
         db.session.commit()
@@ -127,11 +139,13 @@ class BucketItems(db.Model):
     done = db.Column(db.Boolean)
     bucketlist_id = db.Column(db.Integer, db.ForeignKey('bucketlist.id'))
 
+    # intantiate bucketitems fields at creation
     def creation(self):
         self.date_created = datetime.utcnow()
         self.date_modified = datetime.utcnow()
         self.done = False
 
+    # json format
     def to_json(self):
         json_items = {
             'id': self.id,
@@ -142,10 +156,12 @@ class BucketItems(db.Model):
         }
         return json_items
 
+    # save bucketitem to dp
     def save(self):
         db.session.add(self)
         db.session.commit()
 
+    # delete bucketitem from dp
     def delete(self):
         db.session.delete(self)
         db.session.commit()

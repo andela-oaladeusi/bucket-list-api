@@ -238,7 +238,6 @@ class TestAPI(unittest.TestCase):
         self.assertTrue(response.status_code == 401)
 
     def test_update_bucketitem_error(self):
-        # test update a bucketitem status
         response = self.client.put(
             url_for('api_1.update_bucketitem_status',
                     bucketlist_id=1, bucketitem_id=1),
@@ -247,7 +246,6 @@ class TestAPI(unittest.TestCase):
         self.assertTrue(response.status_code == 401)
 
     def test_delete_bucketitem_error(self):
-        # test delete a bucketitem
         response = self.client.delete(
             url_for('api_1.delete_item',
                     bucketlist_id=1, bucketitem_id=1),
