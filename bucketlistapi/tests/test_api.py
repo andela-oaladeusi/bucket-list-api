@@ -121,6 +121,14 @@ class TestAPI(unittest.TestCase):
             headers=self.get_api_headers(token, 'password'))
         self.assertTrue(response.status_code == 200)
 
+    def test_get_bucketlists_with_max_limit(self):
+        # test return bucketlists with max limit
+        token = self.get_token()
+        response = self.client.get(
+            url_for('api_1.get_bucketlists', limit=101),
+            headers=self.get_api_headers(token, 'password'))
+        self.assertTrue(response.status_code == 200)
+
     def test_get_bucketlists_with_query_search(self):
         # test return bucketlists with partial match in query
         token = self.get_token()
@@ -156,7 +164,7 @@ class TestAPI(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
 
     def test_delete_bucketlist(self):
-        # test delete a bucketlist name
+        # test delete a bucketlist 
         token = self.get_token()
         response = self.client.delete(
             url_for('api_1.delete_bucketlist', bucketlist_id=1),

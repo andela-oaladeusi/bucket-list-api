@@ -66,7 +66,7 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    # dekete user form db
+    # delete user form db
     def delete(self):
         db.session.delete(self)
         db.session.commit()
