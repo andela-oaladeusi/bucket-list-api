@@ -13,11 +13,29 @@ from . import db
 from datetime import datetime
 
 
-class User(db.Model):
+class Base(db.Model):
+
+    '''Base Model'''
+    __abstract__ = True
+
+    id = db.Column(db.Integer, primary_key=True)
+    date_created = db.Column(db.DateTime)
+
+    # saves
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    # deletes
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+class User(Base):
 
     '''User Table'''
     __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     bucketlists = db.relationship('BucketList', backref=db.backref(
@@ -61,33 +79,19 @@ class User(db.Model):
         }
         return json_user
 
-    # save user to db
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
 
-    # delete user form db
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-
-class BucketList(db.Model):
+class BucketList(Base):
 
     '''BucketList Table'''
     __tablename__ = 'bucketlist'
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
-    date_created = db.Column(db.DateTime)
     date_modified = db.Column(db.DateTime)
-    created_by = db.Column(db.String(64))
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    bucketitem = db.relationship('BucketItems', backref=db.backref(
-        'bucketitems', lazy='joined'), lazy='dynamic', uselist=True)
+    bucketitems = db.relationship('BucketItem', backref=db.backref(
+        'bucketitem', lazy='joined'), lazy='dynamic', uselist=True)
 
-    # intantiate bucketlist fields at creation
-    def creation(self):
-        self.created_by = g.user.username
+    # instantiate bucketlist fields at creation
+    def create(self):
         self.creator_id = g.user.id
         self.date_created = datetime.now()
         self.date_modified = datetime.now()
@@ -100,47 +104,34 @@ class BucketList(db.Model):
 
     # json format
     def to_json(self):
-        items = [item.to_json() for item in self.bucketitem]
-
+        items = [item.to_json() for item in self.bucketitems]
         json_bucketlist = {
             'id': self.id,
             'name': self.name,
-            'created_by': self.created_by,
+            'created_by': User.query.get(self.creator_id).username,
             'date_created': self.date_created,
             'last_modified': self.date_modified,
             'items': items,
             'bucketlist_url': url_for(
-                'api_1.get_bucketlist',
+                'api_1.bucketlist',
                 bucketlist_id=self.id,
                 _external=True
             ),
         }
         return json_bucketlist
 
-    # save bucketlist to db
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
 
-    # delete bucketlist from db
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-
-class BucketItems(db.Model):
+class BucketItem(Base):
 
     '''BucketItem Table'''
-    __tablename__ = 'bucketitems'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128))
-    date_created = db.Column(db.DateTime)
+    __tablename__ = 'bucketitem'
+    name = db.Column(db.String(64), unique=True, index=True)
     date_modified = db.Column(db.DateTime)
     done = db.Column(db.Boolean)
     bucketlist_id = db.Column(db.Integer, db.ForeignKey('bucketlist.id'))
 
     # intantiate bucketitems fields at creation
-    def creation(self):
+    def create(self):
         self.date_created = datetime.now()
         self.date_modified = datetime.now()
         self.done = False
@@ -155,13 +146,3 @@ class BucketItems(db.Model):
             'done': self.done
         }
         return json_items
-
-    # save bucketitem to dp
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
-
-    # delete bucketitem from dp
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()

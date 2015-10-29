@@ -1,5 +1,5 @@
 '''
-Test file
+Test file to test bucketlist endpoints
 '''
 import json
 import unittest
@@ -8,8 +8,7 @@ from base64 import b64encode
 from flask import url_for, g
 
 from app import create_app, db
-from app.models import User, BucketList, BucketItems
-from app.api_1 import authentication
+from app.models import User, BucketList, BucketItem
 
 
 class TestAPI(unittest.TestCase):
@@ -17,6 +16,7 @@ class TestAPI(unittest.TestCase):
     default_password = 'password'
     default_bucketlist = 'This is a default bucketlist'
     default_bucketlistitem = 'This is a default bucketlist item'
+    new_user = 'dave'
 
     def setUp(self):
         self.app = create_app('testing')
@@ -28,16 +28,21 @@ class TestAPI(unittest.TestCase):
         u.hash_password(self.default_password)
         u.save()
         g.user = u
+        new_u = User(username=self.new_user)
+        new_u.hash_password(self.default_password)
+        new_u.save()
         bucketlist = BucketList(name=self.default_bucketlist)
-        bucketlist.creation()
+        bucketlist.create()
         bucketlist.save()
-        item = BucketItems(name=self.default_bucketlistitem)
-        item.creation()
+        item = BucketItem(
+            name=self.default_bucketlistitem, bucketlist_id=bucketlist.id
+        )
+        item.create()
         item.save()
         self.client = self.app.test_client()
 
     def tearDown(self):
-        db.session. remove()
+        db.session.remove()
         db.drop_all()
         self.app_context.pop()
 
@@ -59,35 +64,6 @@ class TestAPI(unittest.TestCase):
         token = json.loads(response.data)['token']
         return token
 
-    def test_no_auth(self):
-        response = self.client.get(url_for('api_1.get_bucketlists'),
-                                   content_type='application/json')
-        self.assertTrue(response.status_code == 401)
-
-    def test_auth_registration(self):
-        # register a user
-        response = self.client.post(
-            url_for('api_1.new_user'),
-            headers=self.get_api_headers('lade', 'password'),
-            data=json.dumps({'username': 'dave', 'password': 'password'}))
-        self.assertTrue(response.status_code == 200)
-
-    def test_auth_login(self):
-        # login a user
-        response = self.client.post(
-            url_for('api_1.login'),
-            headers=self.get_api_headers('lade', 'password'),
-            data=json.dumps({'username': 'lade', 'password': 'password'}))
-        self.assertTrue(response.status_code == 200)
-
-    def test_auth_logout(self):
-        # logout a user
-        token = self.get_token()
-        response = self.client.post(
-            url_for('api_1.logout'),
-            headers=self.get_api_headers(token, 'password'))
-        self.assertTrue(response.status_code == 200)
-
     def test_get_users(self):
         # test return all users
         token = self.get_token()
@@ -108,7 +84,7 @@ class TestAPI(unittest.TestCase):
         # test return all bucketlists
         token = self.get_token()
         response = self.client.get(
-            url_for('api_1.get_bucketlists'),
+            url_for('api_1.bucketlists'),
             headers=self.get_api_headers(token, 'password'))
         self.assertTrue(response.status_code == 200)
 
@@ -116,7 +92,7 @@ class TestAPI(unittest.TestCase):
         # test return bucketlists with limit
         token = self.get_token()
         response = self.client.get(
-            url_for('api_1.get_bucketlists', limit=1),
+            url_for('api_1.bucketlists', limit=1),
             headers=self.get_api_headers(token, 'password'))
         self.assertTrue(response.status_code == 200)
 
@@ -124,7 +100,7 @@ class TestAPI(unittest.TestCase):
         # test return bucketlists with max limit
         token = self.get_token()
         response = self.client.get(
-            url_for('api_1.get_bucketlists', limit=101),
+            url_for('api_1.bucketlists', limit=101),
             headers=self.get_api_headers(token, 'password'))
         self.assertTrue(response.status_code == 200)
 
@@ -132,7 +108,7 @@ class TestAPI(unittest.TestCase):
         # test return bucketlists with partial match in query
         token = self.get_token()
         response = self.client.get(
-            url_for('api_1.get_bucketlists', q='This'),
+            url_for('api_1.bucketlists', q='This'),
             headers=self.get_api_headers(token, 'password'))
         self.assertTrue(response.status_code == 200)
 
@@ -140,7 +116,7 @@ class TestAPI(unittest.TestCase):
         # test create bucketlist
         token = self.get_token()
         response = self.client.post(
-            url_for('api_1.add_bucketlist'),
+            url_for('api_1.bucketlists'),
             headers=self.get_api_headers(token, 'password'),
             data=json.dumps({'name': 'I just created a bucketlist'}))
         self.assertTrue(response.status_code == 200)
@@ -149,7 +125,7 @@ class TestAPI(unittest.TestCase):
         # test return a bucketlist
         token = self.get_token()
         response = self.client.get(
-            url_for('api_1.get_bucketlist', bucketlist_id=1),
+            url_for('api_1.bucketlist', bucketlist_id=1),
             headers=self.get_api_headers(token, 'password'))
         self.assertTrue(response.status_code == 200)
 
@@ -157,7 +133,7 @@ class TestAPI(unittest.TestCase):
         # test update a bucketlist name
         token = self.get_token()
         response = self.client.put(
-            url_for('api_1.change_bucketlist_name', bucketlist_id=1),
+            url_for('api_1.bucketlist', bucketlist_id=1),
             headers=self.get_api_headers(token, 'password'),
             data=json.dumps({'name': 'I just changed this bucketlist'}))
         self.assertTrue(response.status_code == 200)
@@ -166,7 +142,7 @@ class TestAPI(unittest.TestCase):
         # test delete a bucketlist
         token = self.get_token()
         response = self.client.delete(
-            url_for('api_1.delete_bucketlist', bucketlist_id=1),
+            url_for('api_1.bucketlist', bucketlist_id=1),
             headers=self.get_api_headers(token, 'password'))
         self.assertTrue(response.status_code == 200)
 
@@ -174,7 +150,7 @@ class TestAPI(unittest.TestCase):
         # test create a bucketitem
         token = self.get_token()
         response = self.client.post(
-            url_for('api_1.add_bucketlist_item', bucketlist_id=1),
+            url_for('api_1.add_bucketitem', bucketlist_id=1),
             headers=self.get_api_headers(token, 'password'),
             data=json.dumps({'name': 'I just created this bucketitem'}))
         self.assertTrue(response.status_code == 200)
@@ -183,7 +159,7 @@ class TestAPI(unittest.TestCase):
         # test update a bucketitem status
         token = self.get_token()
         response = self.client.put(
-            url_for('api_1.update_bucketitem',
+            url_for('api_1.bucketitem',
                     bucketlist_id=1, bucketitem_id=1),
             headers=self.get_api_headers(token, 'password'),
             data=json.dumps({'done': True}))
@@ -193,7 +169,7 @@ class TestAPI(unittest.TestCase):
         # test update a bucketitem name
         token = self.get_token()
         response = self.client.put(
-            url_for('api_1.update_bucketitem',
+            url_for('api_1.bucketitem',
                     bucketlist_id=1, bucketitem_id=1),
             headers=self.get_api_headers(token, 'password'),
             data=json.dumps({'name': 'I just changed this bucketlist'}))
@@ -203,85 +179,73 @@ class TestAPI(unittest.TestCase):
         # test delete a bucketitem
         token = self.get_token()
         response = self.client.delete(
-            url_for('api_1.delete_bucketitem',
+            url_for('api_1.bucketitem',
                     bucketlist_id=1, bucketitem_id=1),
             headers=self.get_api_headers(token, 'password'))
         self.assertTrue(response.status_code == 200)
 
     # test errors
-    def test_login_error(self):
-        response = self.client.post(
-            url_for('api_1.login'),
-            headers=self.get_api_headers('lade', 'password'),
-            data=json.dumps({'username': 'lad', 'password': 'pass'}))
-        self.assertTrue(response.status_code == 200)
-
-    def test_registration_error(self):
-        response = self.client.post(
-            url_for('api_1.new_user'),
-            headers=self.get_api_headers('lade', 'password'),
-            data=json.dumps({'username': 'lade', 'password': 'password'}))
-        self.assertTrue(response.status_code == 400)
-
-    def test_empty_registration_error(self):
-        response = self.client.post(
-            url_for('api_1.new_user'),
-            headers=self.get_api_headers('lade', 'password'))
-        self.assertTrue(response.status_code == 400)
-
     def test_get_user_error(self):
+        # test non-existing user
         response = self.client.get(
             url_for('api_1.get_user', username='timothy'),
             headers=self.get_api_headers('lade', 'password'))
         self.assertTrue(response.status_code == 400)
 
     def test_add_bucketlist_error(self):
+        # test add empty bucketlist
         response = self.client.post(
-            url_for('api_1.add_bucketlist'),
+            url_for('api_1.bucketlists'),
             headers=self.get_api_headers('lade', 'password'))
         self.assertTrue(response.status_code == 400)
 
     def test_get_bucketlist_error(self):
+        # test get unauthorized access to bucketlist
         response = self.client.get(
-            url_for('api_1.get_bucketlist', bucketlist_id=1),
+            url_for('api_1.bucketlist', bucketlist_id=1),
             headers=self.get_api_headers('dave', 'password'))
-        self.assertTrue(response.status_code == 401)
+        self.assertTrue(response.status_code == 404)
 
     def test_update_bucketlist_error(self):
+        # test get and update unauthorized access to bucketlist
         response = self.client.put(
-            url_for('api_1.change_bucketlist_name', bucketlist_id=1),
+            url_for('api_1.bucketlist', bucketlist_id=1),
             headers=self.get_api_headers('dave', 'password'),
             data=json.dumps({
                 'name': 'I should not have access to this bucketlist'
             }))
-        self.assertTrue(response.status_code == 401)
+        self.assertTrue(response.status_code == 404)
 
     def test_delete_bucketlist_error(self):
+        # test get and delete unauthorized access to bucketlist
         response = self.client.delete(
-            url_for('api_1.delete_bucketlist', bucketlist_id=1),
+            url_for('api_1.bucketlist', bucketlist_id=1),
             headers=self.get_api_headers('dave', 'password'))
-        self.assertTrue(response.status_code == 401)
+        self.assertTrue(response.status_code == 404)
 
     def test_create_bucketitem_error(self):
+        # test create bucketitem with unauthorized access to bucketlist
         response = self.client.post(
-            url_for('api_1.add_bucketlist_item', bucketlist_id=1),
+            url_for('api_1.add_bucketitem', bucketlist_id=1),
             headers=self.get_api_headers('dave', 'password'),
             data=json.dumps({
                 'name': 'I should not create an bucketitem in this bucketlist'
             }))
-        self.assertTrue(response.status_code == 401)
+        self.assertTrue(response.status_code == 404)
 
     def test_update_bucketitem_error(self):
+        # test update bucketitem with unauthorized access to bucketlist
         response = self.client.put(
-            url_for('api_1.update_bucketitem',
+            url_for('api_1.bucketitem',
                     bucketlist_id=1, bucketitem_id=1),
             headers=self.get_api_headers('dave', 'password'),
             data=json.dumps({'done': True}))
-        self.assertTrue(response.status_code == 401)
+        self.assertTrue(response.status_code == 404)
 
     def test_delete_bucketitem_error(self):
+        # test delete bucketitem with unauthorized access to bucketlist
         response = self.client.delete(
-            url_for('api_1.delete_bucketitem',
+            url_for('api_1.bucketitem',
                     bucketlist_id=1, bucketitem_id=1),
             headers=self.get_api_headers('dave', 'password'))
-        self.assertTrue(response.status_code == 401)
+        self.assertTrue(response.status_code == 404)

@@ -5,6 +5,7 @@ from . import api_1
 from . import errors
 from ..models import User
 from flask import request, url_for, g, jsonify, session
+from datetime import datetime
 
 from flask.ext.httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
@@ -23,6 +24,7 @@ def new_user():
         return errors.bad_request(400)  # existing user
     user = User(username=username)
     user.hash_password(password)
+    user.date_created = datetime.now()
     user.save()
     return jsonify({
         'username': user.username,
