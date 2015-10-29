@@ -89,13 +89,13 @@ class BucketList(db.Model):
     def creation(self):
         self.created_by = g.user.username
         self.creator_id = g.user.id
-        self.date_created = datetime.utcnow()
-        self.date_modified = datetime.utcnow()
+        self.date_created = datetime.now()
+        self.date_modified = datetime.now()
 
     # rename bucketlist
     def rename(self, new_name):
         self.name = new_name
-        self.date_modified = datetime.utcnow()
+        self.date_modified = datetime.now()
         self.save()
 
     # json format
@@ -141,8 +141,8 @@ class BucketItems(db.Model):
 
     # intantiate bucketitems fields at creation
     def creation(self):
-        self.date_created = datetime.utcnow()
-        self.date_modified = datetime.utcnow()
+        self.date_created = datetime.now()
+        self.date_modified = datetime.now()
         self.done = False
 
     # json format

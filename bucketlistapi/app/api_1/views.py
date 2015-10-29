@@ -173,7 +173,7 @@ def update_bucketitem(bucketlist_id, bucketitem_id):
             new_name = request.json.get('name')
             if new_name is not None:
                 bucketitem.name = new_name
-            bucketitem.date_modified = datetime.utcnow()
+            bucketitem.date_modified = datetime.now()
             break
     bucketitem = BucketItems.query.get(bucketitem_id)
 
