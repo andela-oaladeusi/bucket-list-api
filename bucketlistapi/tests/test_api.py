@@ -41,7 +41,6 @@ class TestAPI(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
-
     def get_api_headers(self, username, password):
         return {
             'Authorization':
@@ -164,7 +163,7 @@ class TestAPI(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
 
     def test_delete_bucketlist(self):
-        # test delete a bucketlist 
+        # test delete a bucketlist
         token = self.get_token()
         response = self.client.delete(
             url_for('api_1.delete_bucketlist', bucketlist_id=1),

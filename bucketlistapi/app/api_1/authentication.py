@@ -26,7 +26,7 @@ def new_user():
     user.save()
     return jsonify({
         'username': user.username,
-        'Location': url_for('api_1.get_user', username=user.username,
+        'user_url': url_for('api_1.get_user', username=user.username,
                             _external=True)
     })
 
