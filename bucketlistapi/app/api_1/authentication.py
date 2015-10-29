@@ -48,7 +48,7 @@ def login():
 
     return jsonify({'status': status,
                     'token': token,
-                    'renewal':'please  login again to renew token'
+                    'renewal': 'please login again to renew token'
                     })
 
 
@@ -78,7 +78,6 @@ def verify_password(username_or_token, password):
 
 # request for token
 # to renew token, the user has to log in again
-@auth.login_required
 def get_auth_token():
     '''Generates a token'''
     token = g.user.generate_auth_token()
